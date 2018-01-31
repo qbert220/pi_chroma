@@ -1,11 +1,18 @@
 import numpy
 import cv2
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 import time
 
-backgroundImage = cv2.imread('background.jpeg')
-backgroundImage = cv2.resize(backgroundImage, (640, 360))
+width = 640
+height = 360
 
-foregroundImage = cv2.imread('image.jpeg')
+camera = PiCamera()
+rawCapture = PiRGBArray(camera)
+#time.sleep(0.1)
+
+backgroundImage = cv2.imread('background.jpeg')
+backgroundImage = cv2.resize(backgroundImage, (width, height))
 
 #Setup window for full screen
 cv2.namedWindow("Pi Chroma", cv2.WND_PROP_FULLSCREEN)
@@ -19,9 +26,6 @@ thickness = 3
 cv2.imshow('Pi Chroma', backgroundImage)
 cv2.waitKey()
 
-cv2.imshow('Pi Chroma', foregroundImage)
-cv2.waitKey()
-
 h_min = 50
 h_max = 70
 s_min = 100
@@ -30,6 +34,13 @@ v_min = 100
 v_max = 255
 
 while True:
+
+    rawCapture = PiRGBArray(camera)
+    camera.capture(rawCapture, format="bgr")
+    foregroundImage = rawCapture.array
+    foregroundImage = cv2.resize(foregroundImage, (width, height))
+#    cv2.imshow('Pi Chroma', foregroundImage)
+#    cv2.waitKey()
 
     hsvImage = cv2.cvtColor(foregroundImage, cv2.COLOR_BGR2HSV)
     backgroundMask = cv2.inRange(hsvImage, numpy.array([h_min, s_min, v_min]),
@@ -42,18 +53,18 @@ while True:
                                        mask=foregroundMask)
     img = cv2.add(maskedBackground, maskedForeground)
 
-    text = "{} - {}".format(h_min, h_max)
+    text = "H {} - {}".format(h_min, h_max)
     cv2.putText(img, text, (50, 50), fontFace, fontScale,
                 (255, 255, 255), thickness)
-    text = "{} - {}".format(s_min, s_max)
+    text = "S {} - {}".format(s_min, s_max)
     cv2.putText(img, text, (50, 100), fontFace, fontScale,
                 (255, 255, 255), thickness)
-    text = "{} - {}".format(v_min, v_max)
+    text = "V {} - {}".format(v_min, v_max)
     cv2.putText(img, text, (50, 150), fontFace, fontScale,
                 (255, 255, 255), thickness)
 
     cv2.imshow('Pi Chroma', img)
-    key = cv2.waitKey()
+    key = cv2.waitKey(25)
 
     if key == ord('a'):
         h_max -= 5
