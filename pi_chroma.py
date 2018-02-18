@@ -20,17 +20,17 @@ cv2.setWindowProperty("Pi Chroma", cv2.WND_PROP_FULLSCREEN,
                       cv2.WINDOW_FULLSCREEN)
 
 fontFace = cv2.FONT_HERSHEY_SIMPLEX
-fontScale = 1
-thickness = 3
+fontScale = 0.8
+thickness = 2
 
 cv2.imshow('Pi Chroma', backgroundImage)
-cv2.waitKey()
+key = cv2.waitKey(1000)
 
 h_min = 50
 h_max = 70
 s_min = 100
 s_max = 255
-v_min = 100
+v_min = 80
 v_max = 255
 
 while True:
@@ -57,39 +57,61 @@ while True:
     cv2.putText(img, text, (50, 50), fontFace, fontScale,
                 (255, 255, 255), thickness)
     text = "S {} - {}".format(s_min, s_max)
-    cv2.putText(img, text, (50, 100), fontFace, fontScale,
+    cv2.putText(img, text, (50, 80), fontFace, fontScale,
                 (255, 255, 255), thickness)
     text = "V {} - {}".format(v_min, v_max)
+    cv2.putText(img, text, (50, 110), fontFace, fontScale,
+                (255, 255, 255), thickness)
+
+    cv2.line(img, (width / 2 - 5, height / 2),
+        (width / 2 + 5, height / 2), (255, 255, 255), 1)
+    cv2.line(img, (width / 2, height / 2 - 5),
+        (width / 2, height / 2 + 5), (255, 255, 255), 1)
+    pixel = hsvImage[height / 2][width / 2]
+    text = "HSV = {} {} {}".format(pixel[0], pixel[1], pixel[2])
+    img[height/2][width/2]=(0,0,255)
     cv2.putText(img, text, (50, 150), fontFace, fontScale,
                 (255, 255, 255), thickness)
 
     cv2.imshow('Pi Chroma', img)
     key = cv2.waitKey(25)
 
-    if key == ord('a'):
+    if key == ord('a') and h_max > 5:
         h_max -= 5
-    if key == ord('s'):
+        if h_max <= h_min:
+            h_min = h_max - 5
+    if key == ord('s') and h_max < 180:
         h_max += 5
-    if key == ord('z'):
+    if key == ord('z') and h_min > 0:
         h_min -= 5
-    if key == ord('x'):
+    if key == ord('x') and h_min < 175:
         h_min += 5
-    if key == ord('d'):
+        if h_max <= h_min:
+            h_max = h_min + 5
+    if key == ord('d') and s_max > 5:
         s_max -= 5
-    if key == ord('f'):
+        if s_max <= s_min:
+            s_min = s_max - 5
+    if key == ord('f') and s_max < 255:
         s_max += 5
-    if key == ord('c'):
+    if key == ord('c') and s_min > 0:
         s_min -= 5
-    if key == ord('v'):
+    if key == ord('v') and s_min < 250:
         s_min += 5
-    if key == ord('g'):
+        if s_max <= s_min:
+            s_max = s_min + 5
+    if key == ord('g') and v_max > 5:
         v_max -= 5
-    if key == ord('h'):
+        if v_max <= v_min:
+            v_min = v_max - 5
+    if key == ord('h') and v_max < 255:
         v_max += 5
-    if key == ord('b'):
+    if key == ord('b') and v_min > 0:
         v_min -= 5
-    if key == ord('n'):
+    if key == ord('n') and v_min < 250:
         v_min += 5
+        if v_max <= v_min:
+            v_max = v_min + 5
 
     if key == 27:
         print("Exiting")
